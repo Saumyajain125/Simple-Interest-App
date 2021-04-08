@@ -1,3 +1,5 @@
+import 'dart:math';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -9,6 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -29,7 +32,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
+  String Intrest = 'simple';
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -47,7 +50,23 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  int selectedRadioTile;
+  TextEditingController principal = TextEditingController();
+  TextEditingController rate = TextEditingController();
+  TextEditingController time = TextEditingController();
+  String fina = "";
+  @override
+  void initState() {
+    super.initState();
+    selectedRadioTile = 0;
+    selectedRadioTile = 0;
+  }
 
+  setSelectedRadioTile(int val) {
+    setState(() {
+      selectedRadioTile = val;
+    });
+  }
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -68,46 +87,129 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      backgroundColor: Colors.blue,
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        backgroundColor: Colors.black54,
+        title: Text("Interest Calculator"),
+        centerTitle: false,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            children: [
+              //First Column here we will have an image
+              //getImage(),
+              RadioListTile(
+                tileColor: Colors.grey,
+                value: 1,
+                groupValue: selectedRadioTile,
+                title: Text("Simple Interest",style: TextStyle(color: Colors.white),),
+                onChanged: (val) {
+                  print("Radio Tile pressed $val");
+                  setSelectedRadioTile(val);
+                },
+                activeColor: Colors.red,
+                selected: true,
+              ),
+              RadioListTile(
+                value: 2,
+                groupValue: selectedRadioTile,
+                title: Text("Compound Interest",style: TextStyle(color: Colors.white),),
+                onChanged: (val) {
+                  print("Radio Tile pressed $val");
+                  setSelectedRadioTile(val);
+                },
+                activeColor: Colors.red,
+                selected: false,
+              ),
+              // 3 textFields
+              Padding(
+                padding: const EdgeInsets.only(top:12.0,left: 8.0,right: 8.0,bottom: 8.0),
+                child: Column(
+
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Textfield(principal,"Amount"),
+                    Textfield(rate,"Rate of Interest"),
+                    Textfield(time,"Time"),
+                  ],
+                ),
+              ),
+              // Button to Calculate
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InkWell(
+                  child: Container(
+                    height: 80,
+                    width: 300,
+
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                    ),
+                    child: Center(child: Text("CALCUALTE",style: TextStyle(fontSize: 30,color: Colors.black,fontWeight: FontWeight.bold),)),
+                  ),
+                  onTap: () {
+                    final snackBar = SnackBar(content: Text(Setvalue()));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  },
+                ),
+              ),
+            ],
+              ),
+          ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+  String Setvalue(){
+    String answer = "";
+    double p = double.parse(principal.text);
+    double r = double.parse(rate.text);
+    double t = double.parse(time.text);
+
+    double netpayableamount = 0;
+    if(selectedRadioTile == 1){
+      netpayableamount = p+(p*r*t)/100;
+    }
+    else if(selectedRadioTile == 2){
+      netpayableamount = p + pow((1+(r/100)),t);
+    }
+    if(t == 1){
+      answer = "Interst in $t time would be $netpayableamount at rate of $r";
+    }
+    else{
+      answer = "Interst in $t time would be $netpayableamount at rate of $r";
+    }
+    print(answer);
+    return answer;
+  }
+  TextField Textfield(cont,str) {
+    return TextField(
+              cursorColor: Colors.white,
+              controller: cont,
+              keyboardType: TextInputType.number,
+
+              decoration: InputDecoration(
+                hintText: str,
+                border: const OutlineInputBorder(
+
+              )
+              ),
+            );
+  }
+
+  Container getImage() {
+    return Container(
+            height: 400,
+            width: 400,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('images/pic1.jpg'),
+              )
+            ),
+          );
   }
 }
